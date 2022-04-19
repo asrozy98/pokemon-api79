@@ -17,6 +17,7 @@ class CreatePokemonTable extends Migration
             $table->id();
             $table->integer('pokemon_id');
             $table->string('name');
+            $table->integer('fibonacci');
             $table->timestamps();
         });
     }

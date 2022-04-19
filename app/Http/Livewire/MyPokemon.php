@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use App\Helpers\Helpers;
 use App\Models\Pokemon;
+use Illuminate\Support\Facades\Http;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -22,27 +23,15 @@ class MyPokemon extends Component
         return view('livewire.my-pokemon', $params);
     }
 
-    public function rename($id, $name = null)
+    public function rename($id)
     {
         $pokemon = Pokemon::find($id);
+        $response = Http::get("https://pokeapi.co/api/v2/pokemon/" . $pokemon->pokemon_id)->json();
+        $namePokemon = explode('-', $pokemon->name);
 
-        if ($name == null) {
-            $this->dispatchBrowserEvent('swal:rename', [
-                'message' => 'Rename Pokemon name!',
-                'text' => 'It will change pokemon name.',
-                'id' => $id,
-            ]);
-        } else {
-            $oldPokemon = Pokemon::where('name', 'like', '%' . $name . '%')->get();
-
-            $pokemon->name = $name . '-' . Helpers::fibonacci($oldPokemon->count() + 1);
-            $pokemon->save();
-
-            $this->dispatchBrowserEvent('swal:rename', [
-                'type' => 'success',
-                'message' => 'Pokemon name saved!',
-            ]);
-        }
+        $pokemon->fibonacci = $pokemon->fibonacci + 1;
+        $pokemon->name = $pokemon->fibonacci >= 1 ? $namePokemon[0] . '-' . Helpers::fibonacci($pokemon->fibonacci) : $namePokemon[0];
+        $pokemon->save();
     }
 
     public function release($id)

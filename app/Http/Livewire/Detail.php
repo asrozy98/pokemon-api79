@@ -13,11 +13,13 @@ class Detail extends Component
     public $saved = false;
     public $myPokemon;
     public $namaPokemon;
+    public $probability;
 
     protected $listeners = ['renamePokemon'];
 
     public function render()
     {
+        $this->probability = rand(0, 1);
         $response = Http::get("https://pokeapi.co/api/v2/pokemon/" . $this->pokemon_id)->json();
 
         $image = [];
@@ -58,13 +60,14 @@ class Detail extends Component
 
     public function catchPokemon()
     {
-        $ran = rand(0, 99);
-        if ($ran % 2 == 0) {
-            $oldPokemon = Pokemon::where('pokemon_id', $this->pokemon_id)->get();
+        $this->probability = $this->probability == 1 ? true : false;
+
+        if ($this->probability) {
 
             $pokemon = new Pokemon;
             $pokemon->pokemon_id = $this->pokemon_id;
-            $pokemon->name = $this->namaPokemon . '-' . $oldPokemon->count();
+            $pokemon->fibonacci = 0;
+            $pokemon->name = $this->namaPokemon;
             $pokemon->save();
 
             $this->saved = true;
@@ -75,6 +78,7 @@ class Detail extends Component
                 'rename' => true,
             ]);
         } else {
+            // $this->probability = 1;
             $this->dispatchBrowserEvent('swal:catch', [
                 'type' => 'error',
                 'message' => 'Pokemon Catch Failed!',
@@ -86,10 +90,12 @@ class Detail extends Component
 
     public function renamePokemon($name)
     {
-        $oldPokemon = Pokemon::where('name', 'like', '%' . $name . '%')->get();
-
         $pokemon = Pokemon::where('pokemon_id', $this->pokemon_id)->first();
-        $pokemon->name = $name . '-' . Helpers::fibonacci($oldPokemon->count() + 1);
+
+        $namePokemon = explode('-', $pokemon->name);
+
+        $pokemon->fibonacci = $pokemon->fibonacci == 0 ? 0 : $pokemon->fibonacci + 1;
+        $pokemon->name = $pokemon->fibonacci >= 1 ? $name . '-' . Helpers::fibonacci($pokemon->fibonacci) : $name;
         $pokemon->save();
 
         $this->dispatchBrowserEvent('swal:catch', [

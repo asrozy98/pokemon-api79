@@ -23,8 +23,10 @@ class PokemonController extends Controller
 
     public function catch(Request $request)
     {
+        $probability = rand(0, 1);
         $validator = Validator::make($request->all(), [
             'pokemon_id' => 'required',
+            'name' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -32,8 +34,9 @@ class PokemonController extends Controller
         }
 
         try {
-            $ran = rand(0, 99);
-            if ($ran % 2 == 0) {
+            $probability = $probability == 1 ? true : false;
+
+            if ($probability) {
                 $data = PokemonRepository::create($request);
                 $response = new PokemonResource($data);
 
@@ -49,8 +52,7 @@ class PokemonController extends Controller
     public function rename(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'pokemon_id' => 'required',
+            'pokemon_id' => 'required|exists:pokemon,pokemon_id',
         ]);
 
         if ($validator->fails()) {
@@ -70,7 +72,7 @@ class PokemonController extends Controller
     public function release(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'pokemon_id' => 'required',
+            'pokemon_id' => 'required|exists:pokemon,pokemon_id',
         ]);
 
         if ($validator->fails()) {
