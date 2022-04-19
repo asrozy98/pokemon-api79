@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Pokemon;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,5 +16,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('index');
+});
+
+Route::get('detail/{id}', function () {
+    return view('index');
+});
+
+Route::get('my-pokemon', function () {
+    return view('index');
 });
